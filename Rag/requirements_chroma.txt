@@ -1,0 +1,11 @@
+# ChromaDB Vector Database Requirements
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+PyPDF2>=3.0.0
+pdfplumber>=0.9.0
+pandas>=2.0.0
+numpy>=1.24.0
+torch>=2.0.0  # Required by sentence-transformers
+
+# Optional: for better performance
+onnxruntime>=1.14.0
