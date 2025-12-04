@@ -181,11 +181,9 @@ environment:
 <tr>
 <td align="center">
 <b>Robin De Meyer</b><br>
-<sub>Backend & RAG Pipeline</sub>
 </td>
 <td align="center">
 <b>Roan Vandemeulebroucke</b><br>
-<sub>Frontend & Integration</sub>
 </td>
 </tr>
 </table>
