@@ -1,329 +1,217 @@
-# AI Career Coach - Gen AI Application
+<div align="center">
 
-A comprehensive AI-powered career coaching platform that matches resumes with job opportunities using vector embeddings and semantic search.
+# 🎯 AI Career Coach
 
-## 🎯 Project Overview
+### *AI-Powered Resume Enhancement & Job Matching Platform*
 
-The AI Career Coach leverages:
-- **Vector Embeddings** - Semantic understanding of resumes and job descriptions
-- **ChromaDB** - Lightweight vector database for efficient similarity search
-- **Deep Learning** - Sentence transformers for high-quality embeddings
-- **PDF Processing** - Automated resume text extraction
-- **Metadata Filtering** - Category-based resume queries
+[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
+[![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector%20DB-orange.svg)](https://www.trychroma.com/)
+[![Ollama](https://img.shields.io/badge/Ollama-Mistral%207B-red.svg)](https://ollama.ai/)
 
-## 📁 Project Structure
+**Upload your CV, get AI-powered improvements, and find matching jobs using semantic search**
 
-```
-Gen_AI_Career_Coach/
-├── Backend/              # API and business logic
-├── Frontend/             # User interface
-├── Models/               # ML/AI models
-├── Interview_module/     # Interview preparation features
-├── Rag/                  # Vector Database (ChromaDB)
-│   ├── chroma_setup.py                    # Initialize ChromaDB
-│   ├── chroma_ingestion.py                # Embed & store documents
-│   ├── extract_resumes.py                 # PDF text extraction
-│   ├── career_coach_matcher.py            # Matching API
-│   ├── quickstart.py                      # Automated setup
-│   ├── requirements_chroma.txt            # Python dependencies
-│   └── CHROMA_SETUP.md                    # Detailed guide
-├── Data/                 # Data storage
-│   ├── chromadb/         # Vector database (auto-created)
-│   ├── resumes_extracted.csv    # Extracted resume texts
-│   ├── Job_Descriptions/        # Cleaned job CSVs
-│   └── raw/
-│       └── cv_samples/          # 1000+ resume PDFs by category
-└── readme.md             # This file
-```
-
-## 🚀 Quick Start
-
-### 1. Install Dependencies
-
-```powershell
-cd "path\to\Gen_AI_Career_Coach"
-pip install -r Rag\requirements_chroma.txt
-```
-
-### 2. Automated Setup (Recommended)
-
-```powershell
-python Rag\quickstart.py
-```
-
-This will:
-
-### 3. Manual Setup (Step-by-step)
-
-```powershell
-# Initialize ChromaDB
-python Rag\chroma_setup.py
-
-# Extract resume text from PDFs
-python Rag\extract_resumes.py
-
-# Ingest documents into ChromaDB
-python Rag\chroma_ingestion.py
-```
-
-## 🐳 Dockerized Setup
-
-> **Prerequisites:**
-> - Docker Desktop 4.27+ with Docker Compose v2
-> - `Data/` directory initialized (run `python Rag/quickstart.py` once on the host or inside the container via `docker compose run --rm app python Rag/quickstart.py`)
-
-```powershell
-# Build images and start the full stack (Gradio app + Ollama)
-docker compose up --build
-
-# Optional: run ingestion/maintenance tasks inside the container
-docker compose run --rm app python Rag\quickstart.py
-```
-
-What this does:
-
-- Spins up the main application container exposing Gradio on `http://localhost:7860`
-- Starts an `ollama/ollama` container, automatically pulls the **mistral:7b-instruct-q4_K_M** model (fits in ~4 GiB RAM), and shares the model cache via a named volume
-- Mounts your local `Data/` folder into the container so the ChromaDB index and CSV assets stay persistent between runs
-
-Environment knobs:
-
-- `PORT` – externalize the Gradio port (default `7860`)
-- `GRADIO_SERVER_NAME` – change the bind address (defaults to `0.0.0.0` inside Docker)
-- `OLLAMA_MODEL` – override the Ollama model without code changes (default `mistral:7b-instruct-q4_K_M`)
-
-## 💾 Vector Database: ChromaDB
-
-### Why ChromaDB?
-
-- **Lightweight** - No server setup required
-- **Fast** - HNSW indexing for sub-100ms queries
-- **Easy** - Simple Python API
-- **Flexible** - Metadata filtering and custom metadata
-- **Persistent** - Local storage for your project
-
-### Database Contents
-
-| Collection | Documents | Source |
-|-----------|-----------|--------|
-| `resumes` | 1000+ | PDF files in `Data/raw/cv_samples/` |
-| `job_descriptions` | 2,277 | Cleaned CSVs from `Data/Job_Descriptions/` |
-
-### Categories
-
-Resumes are organized in 9 professional categories:
-- `ENGINEERING`
-- `FINANCE`
-- `FITNESS`
-- `HEALTHCARE`
-- `HR`
-- `INFORMATION-TECHNOLOGY`
-- `PUBLIC-RELATIONS`
-- `SALES`
-- `TEACHER`
-
-## 🔍 Basic Usage
-
-### Find Jobs for a Resume
-
-```python
-from Rag.career_coach_matcher import CareerCoachMatcher
-
-matcher = CareerCoachMatcher()
-
-# Find matching jobs
-resume_text = "Senior Software Engineer with Python experience..."
-jobs = matcher.find_jobs_for_resume(resume_text, n_results=10)
-
-for job in jobs:
-    print(f"• {job.metadata['job_title']} ({job.similarity_score:.1%})")
-```
-
-### Find Resumes for a Job
-
-```python
-# Find matching resumes
-resumes = matcher.find_resumes_for_job(
-    job_title="Senior Cloud Engineer",
-    job_description="Looking for AWS expert...",
-    n_results=10,
-    category_filter="INFORMATION-TECHNOLOGY"
-)
-
-for resume in resumes:
-    print(f"• {resume.metadata['category']} ({resume.similarity_score:.1%})")
-```
-
-### Get Database Statistics
-
-```python
-stats = matcher.get_db_stats()
-print(f"Total Resumes: {stats['total_resumes']}")
-print(f"Total Jobs: {stats['total_jobs']}")
-print(f"Embedding Model: {stats['embedding_model']}")
-```
-
-## 🧠 Embedding Model
-
-**Model**: `all-MiniLM-L6-v2`
-- **Dimensions**: 384
-- **Speed**: Fast (~1000 documents/min)
-- **Task**: Semantic search
-- **Accuracy**: Excellent for career matching
-
-**Storage Requirements**:
-- Resumes: ~2-3 MB
-- Jobs: ~1-2 MB
-- Total: ~5-7 MB (highly compressed)
-
-## 📊 Data Pipeline
-
-```
-Input Data
-├── Resume PDFs (1000+)        → Extract Text
-├── Job Description CSVs        → Clean Data
-│
-↓
-Generate Embeddings
-├── Model: sentence-transformers (384-dim)
-├── Batch Processing: 32 documents/batch
-│
-↓
-Store in ChromaDB
-├── Resumes Collection
-├── Jobs Collection
-│
-↓
-Query & Search
-├── Similarity Search
-├── Category Filtering
-├── Ranking & Scoring
-```
-
-## 📝 Data Cleaning
-
-All data has been cleaned and prepared:
-
-- **job_title_des_cleaned.csv** (2,277 records)
-  - Columns: Job Title, Job Description
-  - HTML removed ✓
-  - Ready for embeddings ✓
-
-- **job_descriptions_2_cleaned.csv.gz** (30,002 records)
-  - Compressed: 38.73 MB (67% reduction)
-  - GitHub-compliant ✓
-
-## 🔧 Configuration
-
-Edit `Rag/chroma_ingestion.py` to customize:
-
-```python
-# Embedding model
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"  # Change for different accuracy/speed tradeoff
-
-# Batch processing
-BATCH_SIZE = 32  # Adjust for memory constraints
-
-# Database location
-CHROMA_DB_PATH = Path(__file__).parent.parent / "Data" / "chromadb"
-```
-
-## 📚 Advanced Features
-
-### Metadata Filtering
-
-```python
-# Query only IT resumes
-resumes = matcher.find_resumes_for_job(
-    job_title="DevOps Engineer",
-    job_description="Kubernetes, AWS...",
-    category_filter="INFORMATION-TECHNOLOGY"
-)
-```
-
-### Minimum Similarity Threshold
-
-```python
-# Only show highly similar matches (> 70%)
-jobs = matcher.find_jobs_for_resume(
-    resume_text="...",
-    min_score=0.7
-)
-```
-
-### Direct ChromaDB Access
-
-```python
-from chroma_setup import get_or_create_db
-
-client, resumes_col, jobs_col = get_or_create_db()
-
-# Custom query
-results = jobs_col.query(
-    query_embeddings=[...],
-    n_results=20,
-    where={"job_title": {"$contains": "Engineer"}}
-)
-```
-
-## 🐛 Troubleshooting
-
-**Q: "ModuleNotFoundError: No module named 'chromadb'"**
-- A: Run `pip install -r Rag\requirements_chroma.txt`
-
-**Q: "CUDA out of memory"**
-- A: Embeddings use CPU by default. Force CPU in code:
-  ```python
-  embedder = ChromaEmbedder()
-  # CPU is used automatically for small models
-  ```
-
-**Q: PDF extraction produces empty text**
-- A: Some PDFs may be scanned images. Install OCR:
-  ```powershell
-  pip install pytesseract pillow
-  ```
-
-**Q: Reset ChromaDB data**
-- A: Delete the database folder:
-  ```powershell
-  Remove-Item "Data\chromadb" -Recurse -Force
-  python Rag\chroma_setup.py
-  ```
-
-## 📖 Documentation
-
-- **Setup Guide**: `Rag/CHROMA_SETUP.md`
-- **Quick Start**: `Rag/quickstart.py`
-- **Matcher API**: `Rag/career_coach_matcher.py`
-
-## 🎓 Learning Resources
-
-- [ChromaDB Documentation](https://docs.trychroma.com/)
-- [Sentence Transformers](https://www.sbert.net/)
-- [Vector Databases Guide](https://www.deepset.ai/blog/the-complete-guide-to-vector-databases)
-- [Semantic Search](https://huggingface.co/blog/semantic-search)
-
-## 📋 Next Steps
-
-- [ ] Build REST API (FastAPI/Flask)
-- [ ] Create web frontend
-- [ ] Implement skills extraction
-- [ ] Add interview prep module
-- [ ] Deploy to cloud (Azure)
-- [ ] Add real-time resume updates
-
-## 👥 Contributors
-
-- Robin De Meyer
-- Roan Vandemeulebroucke
-
-## 📄 License
-
-Project Information: AI Career Coach Application (2025-2026)
+</div>
 
 ---
 
-**Status**: ✅ Vector Database Setup Complete | Ready for Integration
+## 🚀 Quick Start with Docker
 
-Last Updated: November 19, 2025
+### 1️⃣ Clone & Navigate
+
+```bash
+git clone https://github.com/VandemeulebrouckeRoan/GenAiProject.git
+cd GenAiProject
+```
+
+### 2️⃣ Launch the Application
+
+```bash
+docker compose up --build
+```
+
+**That's it!** The application will:
+- ✅ Start Ollama service
+- ✅ Download Mistral 7B model (~4.1GB, first time only)
+- ✅ Launch Gradio web interface
+- ✅ Initialize vector database
+
+### 3️⃣ Access the Application
+
+🌐 **Open your browser:** http://localhost:7860
+
+---
+
+## ⏱️ First Time Setup
+
+| Step | Duration | Details |
+|------|----------|---------|
+| **Docker Build** | 2-3 min | Install Python dependencies |
+| **Ollama Startup** | 30-60 sec | Initialize Ollama service |
+| **Model Download** | 10-15 min | Download Mistral 7B (one time) |
+| **App Launch** | 10-20 sec | Start Gradio interface |
+
+💡 **Total first run**: ~15-20 minutes  
+💡 **Subsequent runs**: ~30 seconds
+
+---
+
+## 📦 What's Included
+
+### Services
+
+| Service | Purpose | Port | Status |
+|---------|---------|------|--------|
+| **Gradio App** | Web interface for CV processing | 7860 | Always runs |
+| **Ollama** | LLM inference (Mistral 7B) | 11434 | Background service |
+| **ChromaDB** | Vector database for job matching | - | Embedded |
+
+### Features
+
+- 📄 **PDF Upload** - Extract text from resume PDFs
+- 🤖 **AI Enhancement** - Improve bullet points with Mistral 7B
+- 🔍 **Job Matching** - Semantic search across 2,277+ jobs
+- 📊 **Smart Filtering** - Category-based resume search
+- 💾 **Persistent Storage** - All data saved locally
+
+---
+
+## 🎯 How to Use
+
+### 1. Upload Your Resume
+
+- Click **"Upload CV (PDF)"** button
+- Select your resume PDF file
+- Enter target job title (e.g., "Software Engineer")
+
+### 2. Process with AI
+
+- Click **"Process CV"** button
+- AI extracts and enhances your bullet points
+- View improved suggestions in real-time
+
+### 3. Find Matching Jobs
+
+- Review enhanced bullet points
+- System automatically searches for matching jobs
+- View ranked results with similarity scores
+
+---
+
+## 🏗️ Project Structure
+
+```
+GenAiProject/
+├── 🐳 docker-compose.yml       # Multi-service orchestration
+├── 📦 Dockerfile               # App container configuration
+├── 📋 requirements.txt         # Python dependencies
+│
+├── 🎨 Frontend/
+│   └── app.py                  # Gradio interface (main entry)
+│
+├── 🔧 Backend/
+│   ├── run_pipeline.py         # CV processing pipeline
+│   └── utils/
+│       ├── pdf_reader.py       # PDF text extraction
+│       └── bullet_extractor.py # AI bullet enhancement
+│
+├── 🧠 Rag/
+│   ├── chroma_setup.py         # Vector DB initialization
+│   ├── chroma_ingestion.py     # Embedding generation
+│   ├── extract_resumes.py      # Batch PDF processing
+│   ├── career_coach_matcher.py # Job matching API
+│   └── quickstart.py           # Setup automation
+│
+└── 💾 Data/
+    ├── chromadb/               # Vector database storage
+    ├── Job_Descriptions/       # 2,277+ job postings
+    └── raw/cv_samples/         # 1,000+ resume samples
+```
+
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+Edit `docker-compose.yml` to customize:
+
+```yaml
+environment:
+  - PORT=7860                    # Gradio web port
+  - OLLAMA_HOST=http://ollama:11434
+  - OLLAMA_MODEL=mistral         # LLM model (mistral/tinyllama)
+  - GRADIO_SERVER_NAME=0.0.0.0  # Bind address
+```
+
+
+## 🗂️ Database Details
+
+### Vector Database (ChromaDB)
+
+| Collection | Documents | Purpose |
+|-----------|-----------|---------|
+| **Resumes** | 1,000+ | Resume embeddings across 9 categories |
+| **Jobs** | 2,277 | Job description embeddings |
+
+### Resume Categories
+
+```
+✓ ENGINEERING              ✓ INFORMATION-TECHNOLOGY
+✓ FINANCE                  ✓ PUBLIC-RELATIONS  
+✓ FITNESS                  ✓ SALES
+✓ HEALTHCARE               ✓ TEACHER
+✓ HR
+```
+
+### Technology Stack
+
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Embeddings** | `all-MiniLM-L6-v2` | 384-dim semantic vectors |
+| **Vector DB** | ChromaDB | Fast similarity search |
+| **LLM** | Mistral 7B | Text generation & enhancement |
+| **Frontend** | Gradio | Web interface |
+| **PDF Processing** | PyPDF2 | Text extraction |
+
+
+
+## 👥 Team
+
+<table>
+<tr>
+<td align="center">
+<b>Robin De Meyer</b><br>
+<sub>Backend & RAG Pipeline</sub>
+</td>
+<td align="center">
+<b>Roan Vandemeulebroucke</b><br>
+<sub>Frontend & Integration</sub>
+</td>
+</tr>
+</table>
+
+---
+
+## 📄 License
+
+**Academic Project** - Howest University (2025-2026)  
+Gen AI Course - AI Career Coach Application
+
+---
+
+## 🔗 Resources
+
+- [ChromaDB Docs](https://docs.trychroma.com/)
+- [Ollama Models](https://ollama.ai/library)
+- [Gradio Documentation](https://www.gradio.app/docs/)
+- [Sentence Transformers](https://www.sbert.net/)
+
+---
+
+<div align="center">
+
+**Made with ❤️ using Python, Docker, ChromaDB & Ollama**
+
+*Last Updated: December 4, 2025*
+
+</div>
