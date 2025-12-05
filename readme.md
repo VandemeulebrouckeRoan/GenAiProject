@@ -46,9 +46,9 @@ docker compose up --build
 
 | Step | Duration | Details |
 |------|----------|---------|
-| **Docker Build** | 2-3 min | Install Python dependencies |
+| **Docker Build** | 10 min | Install Python dependencies |
 | **Ollama Startup** | 30-60 sec | Initialize Ollama service |
-| **Model Download** | 10-15 min | Download Mistral 7B (one time) |
+| **Model Download** | 4 min | Download Mistral 7B (one time) |
 | **App Launch** | 10-20 sec | Start Gradio interface |
 
 💡 **Total first run**: ~15-20 minutes  
@@ -87,7 +87,7 @@ docker compose up --build
 ### 2. Process with AI
 
 - Click **"Process CV"** button
-- AI extracts and enhances your bullet points
+- AI extracts and enhances your bullet points (Wait 2-3 minutes)
 - View improved suggestions in real-time
 
 ### 3. Find Matching Jobs
