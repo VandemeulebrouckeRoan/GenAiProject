@@ -135,24 +135,6 @@ def generate_interview_questions(cv_text, job_title):
         report += "5. **Where do you see yourself in 5 years?**\n"
         report += f"   - *Connect: Your growth with {job_title} career path*\n\n"
         
-        # Technical/role-specific questions based on job description
-        report += "---\n\n"
-        report += "## 🔧 Role-Specific Questions\n\n"
-        report += "*Based on similar job descriptions in our database:*\n\n"
-        
-        for i, job in enumerate(relevant_jobs[:2], 1):
-            job_desc = job.text[:300]
-            report += f"### Scenario {i}:\n"
-            report += f"*Related to: {job.metadata.get('job_title', 'Unknown')}*\n\n"
-            
-            # Extract key skills/topics from job description
-            keywords = ['experience', 'skills', 'requirements', 'responsibilities']
-            for keyword in keywords:
-                if keyword.lower() in job_desc.lower():
-                    report += f"- **Question:** Describe your {keyword} related to this role\n"
-                    break
-            report += "\n"
-        
         report += "---\n\n"
         report += "## 💡 PREPARATION TIPS\n\n"
         report += "### Before the Interview:\n"
