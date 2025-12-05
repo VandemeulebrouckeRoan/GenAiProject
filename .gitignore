@@ -40,10 +40,6 @@ __pycache__/
 Data/raw/
 Data/resumes_extracted.csv
 
-# ChromaDB database (too large for GitHub - regenerate locally)
-Data/chromadb/
->>>>>>> ccbd5d2672a421839f2cef34489a03ddb6f61486
-
 # IDE
 .vscode/
 .idea/
